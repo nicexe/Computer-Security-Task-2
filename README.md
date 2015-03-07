@@ -6,6 +6,7 @@ You will develop a program that tests the strength of passwords. A sample progra
 
 You are free to use a programming language of your choice.
 
-##Deliverables:
+**Deliverables:**
+
 1. A document in **pdf** format that demonstrates the functionality of the program (screenshots) and a *read me* section on how to run the program.
 2. The source code of the program
