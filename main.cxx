@@ -14,11 +14,11 @@ Fl_Group *grpOutput=(Fl_Group *)0;
 
 Fl_Text_Display *txtOutput=(Fl_Text_Display *)0;
 
-Fl_Double_Window* make_window() {
+int main(int argc, char **argv) {
   Fl_Double_Window* w;
   { Fl_Double_Window* o = new Fl_Double_Window(400, 300, "Password Checker");
     w = o;
-    o->align(Fl_Align(FL_ALIGN_CENTER));
+    o->align(Fl_Align(FL_ALIGN_CLIP|FL_ALIGN_INSIDE));
     o->hotspot(o);
     { grpInput = new Fl_Group(5, 20, 390, 105, "Input");
       grpInput->box(FL_PLASTIC_THIN_DOWN_BOX);
@@ -41,5 +41,6 @@ Fl_Double_Window* make_window() {
     o->size_range(400, 300);
     o->end();
   } // Fl_Double_Window* o
-  return w;
+  w->show(argc, argv);
+  return Fl::run();
 }

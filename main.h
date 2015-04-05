@@ -14,5 +14,4 @@ extern Fl_Return_Button *btnSubmit;
 extern Fl_Group *grpOutput;
 #include <FL/Fl_Text_Display.H>
 extern Fl_Text_Display *txtOutput;
-Fl_Double_Window* make_window();
 #endif
