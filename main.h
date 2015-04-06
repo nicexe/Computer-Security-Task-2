@@ -3,12 +3,25 @@
 #ifndef main_h
 #define main_h
 #include <FL/Fl.H>
+#include <iostream>
+#include <string>
+#include <cstdlib>
+#include <FL/fl_ask.H>
+unsigned long long stringToULL(const char* c);
+unsigned long long power(unsigned long long base, unsigned long long exponent);
+bool checkForLow(char c);
+bool checkForCaps(char c);
+bool checkForNumbers(char c);
+bool checkForSpecialCharacters(char c);
+bool checkForNonASCIICharacters(char c);
+unsigned long long calculateCombinations(std::string s);
+unsigned long long calculateTime(unsigned long long combinations, unsigned long long calcPerSec);
 #include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Group.H>
 extern Fl_Group *grpInput;
 #include <FL/Fl_Input.H>
-extern Fl_Input *txtPassword;
 extern Fl_Input *txtCalculationsPerSecond;
+extern Fl_Input *txtPassword;
 #include <FL/Fl_Return_Button.H>
 extern Fl_Return_Button *btnSubmit;
 extern Fl_Group *grpOutput;

@@ -2,36 +2,233 @@
 version 1.0303 
 header_name {.h} 
 code_name {.cxx}
+decl {\#include <iostream>} {public global
+} 
+
+decl {\#include <string>} {public global
+} 
+
+decl {\#include <cstdlib>} {public global
+} 
+
+decl {\#include <FL/fl_ask.H>} {public global
+} 
+
+Function {stringToULL(const char* c)} {open return_type {unsigned long long}
+} {
+  codeblock {} {open after {return std::stoull(c, 0, 10);}
+  } {}
+} 
+
+Function {power(unsigned long long base, unsigned long long exponent)} {open return_type {unsigned long long}
+} {
+  codeblock {} {open after {long double result = 1;
+for (int i = 1; i <= exponent; i++)
+{
+	result = result * base;
+}
+return (result);}
+  } {}
+} 
+
+Function {checkForLow(char c)} {open return_type bool
+} {
+  codeblock {} {open after {bool status;
+if (c>='a'&&c<='z')
+{
+    status = true;
+}
+else
+{
+    status = false;
+}
+return (status);}
+  } {}
+} 
+
+Function {checkForCaps(char c)} {open return_type bool
+} {
+  codeblock {} {open after {bool status;
+if (c>='A'&&c<='Z')
+{
+    status = true;
+}
+else
+{
+    status = false;
+}
+return (status);}
+  } {}
+} 
+
+Function {checkForNumbers(char c)} {open return_type bool
+} {
+  codeblock {} {open after {bool status;
+if (c>='0'&&c<='9')
+{
+    status = true;
+}
+else
+{
+    status = false;
+}
+return (status);}
+  } {}
+} 
+
+Function {checkForSpecialCharacters(char c)} {open return_type bool
+} {
+  codeblock {} {open after {bool status;
+if ( (c>=' '&&c<='/') || (c>=':'&&c<='@') || (c>='['&&c<='`') || (c>='\{'&&c<='~') )
+\{
+    status = true;
+\}
+else
+\{
+    status = false;
+\}
+return (status);}
+  } {}
+} 
+
+Function {checkForNonASCIICharacters(char c)} {open return_type bool
+} {
+  codeblock {} {open after {bool status;
+if ( !checkForLow(c) && !checkForCaps(c) && !checkForNumbers(c) && !checkForSpecialCharacters(c) )
+{
+    status = true;
+}
+else
+{
+    status = false;
+}
+return (status);}
+  } {}
+} 
+
+Function {calculateCombinations(std::string s)} {open return_type {unsigned long long}
+} {
+  codeblock {} {open after {bool low = false, caps = false, numbers = false, specialCharacters = false, nonASCIICharacters = false;
+unsigned long long charCombinations = 0;
+for (int i = 0; i < s.length(); ++i)
+{
+	if (!low)
+	{
+		low = checkForLow(s.at(i));
+		if (low) { charCombinations += 26; }
+	}
+	if (!caps)
+	{
+		caps = checkForCaps(s.at(i));
+		if (caps) { charCombinations += 26; }
+	}
+	if (!numbers)
+	{
+		numbers = checkForNumbers(s.at(i));
+		if (numbers) { charCombinations += 10; }
+	}
+	if (!specialCharacters)
+	{
+		specialCharacters = checkForSpecialCharacters(s.at(i));
+		if (specialCharacters) { charCombinations += 34; }
+	}
+	if (!nonASCIICharacters)
+	{
+		nonASCIICharacters = checkForNonASCIICharacters(s.at(i));
+		if (nonASCIICharacters) { charCombinations += 94; }
+	}
+}
+charCombinations = power(charCombinations, s.length());
+
+return (charCombinations);}
+  } {}
+} 
+
+Function {calculateTime(unsigned long long combinations, unsigned long long calcPerSec)} {open return_type {unsigned long long}
+} {
+  codeblock {} {open after {return(combinations/calcPerSec);}
+  } {}
+} 
+
 Function {} {open
 } {
   Fl_Window {} {
-    label {Password Checker} open selected
-    xywh {461 273 400 300} type Double align 80 hotspot size_range {400 300 0 0} visible
+    label {Password Checker} open
+    xywh {455 164 400 400} type Double align 80 hotspot size_range {400 400 400 400} visible
   } {
     Fl_Group grpInput {
       label Input open
-      xywh {5 20 390 105} box PLASTIC_THIN_DOWN_BOX
+      xywh {5 30 390 105} box DOWN_BOX
     } {
-      Fl_Input txtPassword {
-        label {Enter Password}
-        xywh {10 90 380 25} align 129
-      }
       Fl_Input txtCalculationsPerSecond {
         label {Enter Calculations Per Second}
-        xywh {10 45 380 25} align 1
+        xywh {15 55 370 25} align 1
+      }
+      Fl_Input txtPassword {
+        label {Enter Password}
+        xywh {15 100 370 25} align 129
       }
     }
     Fl_Return_Button btnSubmit {
       label Submit
-      xywh {5 130 390 25}
+      callback {std::string pass = "", calc = "";
+long long unsigned calculationsPerSecond = 0;
+long long unsigned combinations = 0;
+long long unsigned timeToCrack = 0;
+const char *pchar;
+
+Fl_Text_Buffer *textBuff = new Fl_Text_Buffer();
+txtOutput->buffer(textBuff);
+
+pass.append(txtPassword->value());
+calc.append(txtCalculationsPerSecond->value());
+
+if (pass.compare("")==0)
+{
+    fl_alert("The password is empty!");
+}
+else if (calc.compare("")==0||calc.compare("0")==0||calc.at(0)=='-')
+{
+    fl_alert("Calculations Per Second must be greater or equal to 1!");
+}
+else
+{
+    calculationsPerSecond = stringToULL(txtCalculationsPerSecond->value());
+    combinations = calculateCombinations(pass);
+    timeToCrack = calculateTime(combinations, calculationsPerSecond);
+    
+    //std::cout << "characters: " << pass.length() << std::endl;
+    //std::cout << "combinations: " << combinations << std::endl;
+    //std::cout << "time to crack: " << timeToCrack << " seconds" << std::endl;
+    
+    textBuff->text(""); // clear the contents
+    if (timeToCrack <= 1)
+    {
+    	textBuff->append("It takes less than a second");
+    }
+    else
+    {
+    	textBuff->append("It takes ");
+    	pchar = std::to_string(timeToCrack).c_str();
+    	textBuff->append(pchar);
+    	textBuff->append(" seconds");
+    }
+    textBuff->append(" to crack this password");
+    
+    txtPassword->take_focus();
+}} selected
+      xywh {15 150 370 25}
     }
     Fl_Group grpOutput {
       label Output open
-      xywh {5 175 390 120} box PLASTIC_THIN_DOWN_BOX
+      xywh {5 205 390 180} box DOWN_BOX
     } {
       Fl_Text_Display txtOutput {
-        xywh {10 185 380 100}
+        xywh {15 215 370 160}
       }
     }
   }
+  code {txtCalculationsPerSecond->value("4000000000");
+txtPassword->value("123");
+txtPassword->take_focus();} {}
 } 

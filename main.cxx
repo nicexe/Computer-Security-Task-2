@@ -2,13 +2,189 @@
 
 #include "main.h"
 
-Fl_Group *grpInput=(Fl_Group *)0;
+unsigned long long stringToULL(const char* c) {
+   {
+  } return std::stoull(c, 0, 10);
+}
 
-Fl_Input *txtPassword=(Fl_Input *)0;
+unsigned long long power(unsigned long long base, unsigned long long exponent) {
+   {
+  } long double result = 1;
+for (int i = 1; i <= exponent; i++)
+{
+	result = result * base;
+}
+return (result);
+}
+
+bool checkForLow(char c) {
+   {
+  } bool status;
+if (c>='a'&&c<='z')
+{
+    status = true;
+}
+else
+{
+    status = false;
+}
+return (status);
+}
+
+bool checkForCaps(char c) {
+   {
+  } bool status;
+if (c>='A'&&c<='Z')
+{
+    status = true;
+}
+else
+{
+    status = false;
+}
+return (status);
+}
+
+bool checkForNumbers(char c) {
+   {
+  } bool status;
+if (c>='0'&&c<='9')
+{
+    status = true;
+}
+else
+{
+    status = false;
+}
+return (status);
+}
+
+bool checkForSpecialCharacters(char c) {
+   {
+  } bool status;
+if ( (c>=' '&&c<='/') || (c>=':'&&c<='@') || (c>='['&&c<='`') || (c>='{'&&c<='~') )
+{
+    status = true;
+}
+else
+{
+    status = false;
+}
+return (status);
+}
+
+bool checkForNonASCIICharacters(char c) {
+   {
+  } bool status;
+if ( !checkForLow(c) && !checkForCaps(c) && !checkForNumbers(c) && !checkForSpecialCharacters(c) )
+{
+    status = true;
+}
+else
+{
+    status = false;
+}
+return (status);
+}
+
+unsigned long long calculateCombinations(std::string s) {
+   {
+  } bool low = false, caps = false, numbers = false, specialCharacters = false, nonASCIICharacters = false;
+unsigned long long charCombinations = 0;
+for (int i = 0; i < s.length(); ++i)
+{
+	if (!low)
+	{
+		low = checkForLow(s.at(i));
+		if (low) { charCombinations += 26; }
+	}
+	if (!caps)
+	{
+		caps = checkForCaps(s.at(i));
+		if (caps) { charCombinations += 26; }
+	}
+	if (!numbers)
+	{
+		numbers = checkForNumbers(s.at(i));
+		if (numbers) { charCombinations += 10; }
+	}
+	if (!specialCharacters)
+	{
+		specialCharacters = checkForSpecialCharacters(s.at(i));
+		if (specialCharacters) { charCombinations += 34; }
+	}
+	if (!nonASCIICharacters)
+	{
+		nonASCIICharacters = checkForNonASCIICharacters(s.at(i));
+		if (nonASCIICharacters) { charCombinations += 94; }
+	}
+}
+charCombinations = power(charCombinations, s.length());
+
+return (charCombinations);
+}
+
+unsigned long long calculateTime(unsigned long long combinations, unsigned long long calcPerSec) {
+   {
+  } return(combinations/calcPerSec);
+}
+
+Fl_Group *grpInput=(Fl_Group *)0;
 
 Fl_Input *txtCalculationsPerSecond=(Fl_Input *)0;
 
+Fl_Input *txtPassword=(Fl_Input *)0;
+
 Fl_Return_Button *btnSubmit=(Fl_Return_Button *)0;
+
+static void cb_btnSubmit(Fl_Return_Button*, void*) {
+  std::string pass = "", calc = "";
+long long unsigned calculationsPerSecond = 0;
+long long unsigned combinations = 0;
+long long unsigned timeToCrack = 0;
+const char *pchar;
+
+Fl_Text_Buffer *textBuff = new Fl_Text_Buffer();
+txtOutput->buffer(textBuff);
+
+pass.append(txtPassword->value());
+calc.append(txtCalculationsPerSecond->value());
+
+if (pass.compare("")==0)
+{
+    fl_alert("The password is empty!");
+}
+else if (calc.compare("")==0||calc.compare("0")==0||calc.at(0)=='-')
+{
+    fl_alert("Calculations Per Second must be greater or equal to 1!");
+}
+else
+{
+    calculationsPerSecond = stringToULL(txtCalculationsPerSecond->value());
+    combinations = calculateCombinations(pass);
+    timeToCrack = calculateTime(combinations, calculationsPerSecond);
+    
+    //std::cout << "characters: " << pass.length() << std::endl;
+    //std::cout << "combinations: " << combinations << std::endl;
+    //std::cout << "time to crack: " << timeToCrack << " seconds" << std::endl;
+    
+    textBuff->text(""); // clear the contents
+    if (timeToCrack <= 1)
+    {
+    	textBuff->append("It takes less than a second");
+    }
+    else
+    {
+    	textBuff->append("It takes ");
+    	pchar = std::to_string(timeToCrack).c_str();
+    	textBuff->append(pchar);
+    	textBuff->append(" seconds");
+    }
+    textBuff->append(" to crack this password");
+    
+    txtPassword->take_focus();
+};
+}
 
 Fl_Group *grpOutput=(Fl_Group *)0;
 
@@ -16,31 +192,35 @@ Fl_Text_Display *txtOutput=(Fl_Text_Display *)0;
 
 int main(int argc, char **argv) {
   Fl_Double_Window* w;
-  { Fl_Double_Window* o = new Fl_Double_Window(400, 300, "Password Checker");
+  { Fl_Double_Window* o = new Fl_Double_Window(400, 400, "Password Checker");
     w = o;
     o->align(Fl_Align(FL_ALIGN_CLIP|FL_ALIGN_INSIDE));
     o->hotspot(o);
-    { grpInput = new Fl_Group(5, 20, 390, 105, "Input");
-      grpInput->box(FL_PLASTIC_THIN_DOWN_BOX);
-      { txtPassword = new Fl_Input(10, 90, 380, 25, "Enter Password");
-        txtPassword->align(Fl_Align(129));
-      } // Fl_Input* txtPassword
-      { txtCalculationsPerSecond = new Fl_Input(10, 45, 380, 25, "Enter Calculations Per Second");
+    { grpInput = new Fl_Group(5, 30, 390, 105, "Input");
+      grpInput->box(FL_DOWN_BOX);
+      { txtCalculationsPerSecond = new Fl_Input(15, 55, 370, 25, "Enter Calculations Per Second");
         txtCalculationsPerSecond->align(Fl_Align(FL_ALIGN_TOP));
       } // Fl_Input* txtCalculationsPerSecond
+      { txtPassword = new Fl_Input(15, 100, 370, 25, "Enter Password");
+        txtPassword->align(Fl_Align(129));
+      } // Fl_Input* txtPassword
       grpInput->end();
     } // Fl_Group* grpInput
-    { btnSubmit = new Fl_Return_Button(5, 130, 390, 25, "Submit");
+    { btnSubmit = new Fl_Return_Button(15, 150, 370, 25, "Submit");
+      btnSubmit->callback((Fl_Callback*)cb_btnSubmit);
     } // Fl_Return_Button* btnSubmit
-    { grpOutput = new Fl_Group(5, 175, 390, 120, "Output");
-      grpOutput->box(FL_PLASTIC_THIN_DOWN_BOX);
-      { txtOutput = new Fl_Text_Display(10, 185, 380, 100);
+    { grpOutput = new Fl_Group(5, 205, 390, 180, "Output");
+      grpOutput->box(FL_DOWN_BOX);
+      { txtOutput = new Fl_Text_Display(15, 215, 370, 160);
       } // Fl_Text_Display* txtOutput
       grpOutput->end();
     } // Fl_Group* grpOutput
-    o->size_range(400, 300);
+    o->size_range(400, 400, 400, 400);
     o->end();
   } // Fl_Double_Window* o
+  txtCalculationsPerSecond->value("4000000000");
+  txtPassword->value("123");
+  txtPassword->take_focus();
   w->show(argc, argv);
   return Fl::run();
 }
